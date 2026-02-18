@@ -285,6 +285,13 @@ async function sendMessage() {
 
     if (!message) return;
 
+    // --- INTERCEPTION DEVIS (V3) ---
+    if (message.toLowerCase().includes("devis")) {
+        ouvrirConfirmation(message);
+        return;
+    }
+    // -------------------------------
+
     if (WEBHOOK_URL === 'YOUR_MAKE_WEBHOOK_URL_HERE') {
         alert('⚠️ Veuillez configurer votre URL webhook Make dans script.js');
         return;
@@ -579,3 +586,87 @@ async function displayProgressively(text, sender) {
  * Affiche un calendrier pour un mois et une année donnés.
  * @param {Date} date La date indiquant le mois et l'année à afficher.
  */
+/**
+ * Gère la popup de fin et l'envoi sécurisé à Make (Version Ecume)
+ */
+function ouvrirConfirmation(messageUtilisateur) {
+    const overlay = document.createElement('div');
+    overlay.className = 'f-modal-overlay';
+    overlay.innerHTML = `
+        <div class="f-modal-box">
+            <h3>Confirmation</h3>
+            <p>Voulez-vous clôturer cet échange et envoyer votre proposition pour <strong>correction</strong> ?</p>
+            <div class="f-modal-actions">
+                <button class="f-btn f-btn-main" id="confirmFinish">Envoyer</button>
+                <button class="f-btn f-btn-sec" id="cancelFinish">Modifier</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    // UX : Focus immédiat sur le bouton pour valider avec "Entrée"
+    const confirmBtn = overlay.querySelector('#confirmFinish');
+    confirmBtn.focus();
+
+    // Annuler
+    overlay.querySelector('#cancelFinish').onclick = () => overlay.remove();
+
+    // Confirmer
+    confirmBtn.onclick = async () => {
+        overlay.remove();
+
+        // 1. Affichage message + Verrouillage immédiat
+        addMessage(messageUtilisateur, 'user');
+        const input = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        input.value = "";
+        input.placeholder = "Correction en cours...";
+        input.disabled = true;
+        if (sendBtn) sendBtn.disabled = true;
+
+        // 2. Préparation des données
+        messageCounter++;
+        const notesText = document.getElementById('notesTextarea') ? document.getElementById('notesTextarea').value : "";
+
+        const payloadFinal = {
+            conversationId: conversationId,
+            messageId: messageCounter,
+            clientName: clientName,
+            chatbotName: chatbotName, // "L'Ecume Sucrée"
+            action: "CORRECTION",
+            message: messageUtilisateur,
+            timestamp: new Date().toLocaleString('fr-FR'),
+            note: notesText
+        };
+
+        // 3. Indicateur de frappe
+        const typingId = showTypingIndicator();
+
+        try {
+            // 4. Appel Make
+            const response = await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payloadFinal)
+            });
+
+            if (response.ok) {
+                // 5. Réception et affichage
+                removeTypingIndicator(typingId);
+                const textReponse = await response.text();
+                await displayProgressively(textReponse, 'ai');
+
+                input.placeholder = "Exercice terminé.";
+            } else {
+                removeTypingIndicator(typingId);
+                addMessage("❌ Le correcteur ne répond pas.", 'ai');
+            }
+
+        } catch (e) {
+            console.error(e);
+            removeTypingIndicator(typingId);
+            addMessage("❌ Erreur de connexion.", 'ai');
+        }
+    };
+}
