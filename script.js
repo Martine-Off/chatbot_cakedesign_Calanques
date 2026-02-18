@@ -123,8 +123,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Initialise le calendrier
-    renderCalendar(new Date(2025, 10, 5)); // Initialise le calendrier en Novembre 2025
 
 });
 
@@ -146,7 +144,7 @@ function startChat(nameValue) {
     if (nameInputSection) nameInputSection.hidden = true;
 
     // Afficher le premier message de l'utilisateur de manière progressive
-    const firstMessage = "Bonjour. Excusez-moi, je suis au téléphone avec ma future épouse qui va préciser au besoin. Je voudrais passer une commande pour une pièce montée pour un évement qui aura lieu l'été prochain. ";
+    const firstMessage = "Bonjour, je voudrais passer une commande.";
     displayProgressively(firstMessage, 'ai');
     messageInput.focus();
 }
@@ -268,7 +266,6 @@ function showTypingIndicator() {
 
     const bubble = document.createElement('div');
     bubble.className = 'bubble typing-indicator';
-    bubble.innerHTML = '<span></span><span></span><span></span>';
     bubble.innerHTML = '<div class="dot-flashing"></div>';
 
     typingDiv.appendChild(bubble);
@@ -434,7 +431,7 @@ async function sendMessage() {
         if (!response.ok) {
             console.error('Erreur HTTP reçue de Make:', status, statusText, data || text);
             removeTypingIndicator(typingId);
-            addMessage(`❌ Erreur HTTP ${status} reçue de Make. Voir console pour détails.`, 'ai');
+            addMessage("Le service est momentanément indisponible.<br>Nous avons été alertés et intervenons pour rétablir l’accès.<br>Vous pouvez réessayer dans quelques minutes.", 'ai');
             return;
         }
 
@@ -582,53 +579,3 @@ async function displayProgressively(text, sender) {
  * Affiche un calendrier pour un mois et une année donnés.
  * @param {Date} date La date indiquant le mois et l'année à afficher.
  */
-function renderCalendar(date) {
-    const calendarContainer = document.getElementById('calendar-container');
-    if (!calendarContainer) {
-        console.error("L'élément #calendar-container est introuvable.");
-        return;
-    }
-
-    const year = date.getFullYear();
-    const month = date.getMonth(); // 0-11
-
-    const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-    const dayNames = ["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"];
-
-    const firstDayOfMonth = new Date(year, month, 1);
-    const lastDayOfMonth = new Date(year, month + 1, 0);
-    const firstDayOfWeek = firstDayOfMonth.getDay(); // 0=Dimanche, 1=Lundi...
-    const totalDays = lastDayOfMonth.getDate();
-
-    // Le HTML est généré à l'intérieur d'une carte pour correspondre au style existant
-    let html = `
-        <div class="info-card full-width">
-            <h3>Calendrier</h3>
-            <div class="calendar-header">
-                <span class="calendar-month-year">${monthNames[month]} ${year}</span>
-            </div>
-            <table>
-                <thead>
-                    <tr>${dayNames.map(day => `<th>${day}</th>`).join('')}</tr>
-                </thead>
-                <tbody>
-    `;
-
-    let day = 1;
-    for (let i = 0; i < 6; i++) { // 6 lignes max pour un mois
-        html += '<tr>';
-        for (let j = 0; j < 7; j++) {
-            if ((i === 0 && j < firstDayOfWeek) || day > totalDays) {
-                html += '<td></td>';
-            } else {
-                html += `<td>${day}</td>`;
-                day++;
-            }
-        }
-        html += '</tr>';
-        if (day > totalDays) break; // Sortir si tous les jours sont placés
-    }
-
-    html += '</tbody></table></div>';
-    calendarContainer.innerHTML = html;
-}
