@@ -13,21 +13,6 @@
  * @date    Avril 2026
  * @license Propriétaire — EISF
  */
-/**
- * L'Écume Sucrée — Chatbot
- *
- * © 2026 EISF — École Internationale du Savoir Faire Français
- * Tous droits réservés / All Rights Reserved.
- *
- * Ce fichier fait partie du projet "L'Écume Sucrée".
- * Toute reproduction ou utilisation non autorisée est interdite.
- * Voir le fichier LICENSE à la racine du projet.
- *
- * @author  Martine Desmaroux <m.desmaroux@eisf.fr>
- * @version 1.0
- * @date    Avril 2026
- * @license Propriétaire — EISF
- */
 // Configuration
 const WEBHOOK_URL = 'https://hook.eu1.make.com/l4sx3qdyt2o6j7a8h1ln3phdrtpg31cp';
 let lastPayload = null; // Dernier payload envoyé (pour debug / copie)
