@@ -25,3 +25,8 @@ Toute reproduction, modification ou distribution non autorisée est interdite.
 |---------|-------------|----------|---------|------|
 | L'Ecume Sucrée.png | Logo de la pâtisserie | EISF (interne) | Propriétaire EISF | 2026 |
 | M. Baris.png | Visuel client | EISF (interne) | Propriétaire EISF | 2026 |
+
+---
+
+> © 2026 EISF — École Internationale du Savoir Faire Français
+> Tous droits réservés. Document interne — diffusion restreinte.
